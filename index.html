@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    /* Existing styles remain unchanged */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #333;
+    }
+    body.dark-mode {
+      background-color: #333;
+      color: #f4f4f9;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background-color: linear-gradient(135deg, #6a11cb, #2575fc);
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .card h2 {
+      margin-left: 20px;
+      font-size: 0.5em;
+      color: #ddd;
+    }
+    .dark-mode .card h2 {
+      color: #ddd;
+    }
+    .dark-mode .card {
+      background-color: #444;
+      color: #fff;
+    }
+    .iframe-slider h2 {
+      margin-left: 20px;
+      font-size: 0.5em;
+      color: #ddd;
+    }
+    .dark-mode .iframe-slider h2 {
+      color: #ddd;
+    }
+    .iframe-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* Adjust this value based on the aspect ratio of your iframes */
+      overflow: hidden;
+      border-radius: 20px;
+    }
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; /* Make iframe fill the container */
+      border: none;
+    }
+    /* Iframe Slider */
+    .iframe-slider-container {
+      margin-top: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .iframe-slider {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px 20px; /* Add padding to the slider container */
+    }
+    .iframe-slide {
+      min-width: 90%;
+      flex-shrink: 0;
+      border-radius: 20px;
+      overflow: hidden;
+      padding-bottom: 56.25%; /* Adjust this value based on the aspect ratio of your iframes */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      height: 300px; /* Fixed height for iframe-slide */
+      padding: 0 0; /* Add padding to the left and right of the slide */
+      box-sizing: border-box; /* Ensure padding is included in the width */
+    }
+    .iframe-slide iframe {
+      width: 100%;
+      height: 100%; /* Make iframe fill the slide */
+      border: none;
+    }
+    /* Dark Mode Toggle Button */
+    .mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .mode-toggle.light {
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .mode-toggle:hover {
+      transform: scale(1.1);
+    }
+    /* Swipe for more text */
+    .swipe-text {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.5em;
+      color: #777;
+    }
+    .dark-mode .swipe-text {
+      color: #aaa;
+    }
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      .iframe-slide { 
+        height: 300px; /* Increased height on larger screens */ 
+      }
+    }
+
+    /* Styles for the top button bar with circular cards */
+    .button-bar {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+    }
+    .button-bar .icon-button {
+      background: none;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+      background-color: #f4f4f9;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .button-bar .icon-button:hover {
+      transform: scale(1.1);
+      background-color: #007bff;
+      color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .dark-mode .button-bar .icon-button {
+      background-color: #555;
+      color: #fff;
+    }
+    .dark-mode .button-bar .icon-button:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* Styles for the bottom center menu */
+    .bottom-menu {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 30px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 10px 20px;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      animation: slideUp 0.5s ease-out;
+    }
+    .bottom-menu button {
+      background: none;
+      border: none;
+      font-size: 12px;
+      margin: 0 10px;
+      cursor: pointer;
+      transition: transform 0.3s, color 0.3s;
+    }
+    .bottom-menu button:hover {
+      transform: scale(1.2);
+      color: #007bff;
+    }
+    .dark-mode .bottom-menu {
+      background-color: rgba(51, 51, 51, 0.9);
+    }
+    .dark-mode .bottom-menu button {
+      color: #fff;
+    }
+    .dark-mode .bottom-menu button:hover {
+      color: #007bff;
+    }
+
+    /* Animation for the bottom menu */
+    @keyframes slideUp {
+      from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+      }
+      to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
+    }
+
+    /* Styles for the More popup menu */
+    .more-popup {
+      position: fixed;
+      bottom: 80px; /* Position above the bottom menu */
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      backdrop-filter: blur(10px);
+      z-index: 1001;
+      display: none; /* Hidden by default */
+      flex-direction: column;
+      gap: 10px;
+    }
+    .more-popup button {
+      background: none;
+      border: none;
+      font-size: 10px;
+      cursor: pointer;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .more-popup button:hover {
+      color: #007bff;
+    }
+    .dark-mode .more-popup {
+      background-color: rgba(51, 51, 51, 0.9);
+    }
+    .dark-mode .more-popup button {
+      color: #fff;
+    }
+    .dark-mode .more-popup button:hover {
+      color: #007bff;
+    }
+
+    /* SVG icon styles */
+    .icon {
+      width: 25px;
+      height: 25px;
+      fill: currentColor; /* Inherit color from parent */
+    }
+  </style>
+</head>
+<body>
+  <!-- Button Bar with Circular Icon Cards -->
+  <div class="button-bar">
+    <button class="icon-button" onclick="window.open('https://skadigitalhub.github.io/24-7Tv/', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzIxMjM5Mzlf/LiveTv.png" alt="Tv">
+    </button>
+    <button class="icon-button" onclick="window.open('https://skadigitalhub.github.io/iradio/', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzIxMjM4ODZf/pngwing.com%20%281%29.png" alt="Radio">
+    </button>
+    <button class="icon-button" onclick="window.open('https://www.socialcreator.com/skalink', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzIxMjM5MzZf/Onlineservice.png" alt="Join">
+    </button>
+    <button class="icon-button" onclick="window.open('https://www.socialcreator.com/skalink/?s=306415', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzIxMjM5Mzdf/StreamLive.png" alt="Streamlive">
+    </button>
+    <button class="icon-button" onclick="window.open('https://skadigitalhub.github.io/Audioplaylist/', '_blank')">
+      <img class="icon" src="https://w7.pngwing.com/pngs/150/958/png-transparent-digital-audio-music-mp3-player-android-android-blue-mobile-phones-electric-blue-thumbnail.png" alt="Audios">
+    </button>
+    <button class="icon-button" onclick="window.open('https://skadigitalhub.github.io/Testimonyform/', '_blank')">
+      <img class="icon" src="https://w7.pngwing.com/pngs/595/923/png-transparent-management-business-sales-company-service-team-success-company-service-team-thumbnail.png" alt="Fellowship">
+    </button>
+    <button class="icon-button" onclick="window.open('YOUR_LINK_FOR_EVENT', '_blank')">
+      <img class="icon" src="https://ia902906.us.archive.org/17/items/img-20250315-wa-0000/IMG-20250315-WA0000.jpg" alt="Event">
+    </button>
+  </div>
+
+  <!-- Dark Mode Toggle Button -->
+  <button class="mode-toggle" onclick="toggleMode()">🔅</button>
+
+  <div class="dashboard">
+    <div class="card">
+      <h2>UPDATE</h2>
+      <div class="iframe-container">
+        <iframe seamless frameborder="0" scrolling="auto" src="https://www.socialcreator.com/skalink/?s=306599"></iframe>
+      </div>
+    </div>
+    <div class="card">
+      <h2>DEVOTIONAL</h2>
+      <div class="iframe-container">
+        <iframe seamless frameborder="0" scrolling="auto" src="https://www.socialcreator.com/skalink/?s=306194"></iframe>
+      </div>
+    </div>
+    <!-- Swipable Iframe Section -->
+    <div class="swipe-text">Swipe for more...</div>
+    <div class="iframe-slider-container">
+      <div class="iframe-slider" id="iframeSlider">
+        <div class="iframe-slide">
+          <h2>VIDEOS</h2>
+          <iframe src="https://www.socialcreator.com/skalink/?s=306414" frameborder="0" scrolling="auto"></iframe>
+        </div>
+        <div class="iframe-slide">
+          <h2>BOOKS</h2>
+          <iframe src="https://www.socialcreator.com/skabooks"></iframe>
+        </div>
+        <div class="iframe-slide">
+          <h2>AUDIOS</h2>
+          <iframe src="https://skatv.cw.center/freedownload/free-audio-downloads/" frameborder="0" scrolling="auto"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>TESTIMONY</h2>
+      <div class="iframe-container">
+        <iframe seamless frameborder="0" scrolling="auto" src="https://www.socialcreator.com/skalink/?s=306702">click to share</iframe>
+      </div>
+    </div>
+    <div class="card">
+      <h2>SCHEDULE</h2>
+      <div class="iframe-container">
+        <iframe src="https://calendar.google.com/calendar/embed?height=400&wkst=1&ctz=Etc%2FGMT&showPrint=0&showNav=0&mode=AGENDA&title=Church%20Event%20&showTitle=0&showTz=0&showTabs=0&showCalendars=0&src=Z2xvcmlvdXNyb3lhbHdvcmRjaXRhZGVsQGdtYWlsLmNvbQ&color=%23800080" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Center Menu -->
+  <div class="bottom-menu">
+    <button onclick="window.location.reload()">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA4MDJf/home.png" alt="Refresh">
+    </button>
+    <button onclick="window.open('https://skadigitalhub.github.io/NKJVBible/', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA4MDNf/Bible.png" alt="Bible">
+    </button>
+    <button onclick="window.location.href='tel:*713*2733%23'">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA4MDFf/giveme.png" alt="Phone">
+    </button>
+    <button onclick="window.open('https://skadigitalhub.github.io/chatone/', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA4MDRf/chatme.png" alt="Chat">
+    </button>
+    <button onclick="toggleMorePopup()">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA4MDVf/more.png" alt="More">
+    </button>
+  </div>
+
+  <!-- More Popup Menu -->
+  <div class="more-popup" id="morePopup">
+    <button onclick="window.open('https://skadigitalhub.github.io/iWrite/', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA4MDBf/note.png" alt="Notes">
+      <span>Notes</span>
+    </button>
+    <button onclick="window.open('https://www.socialcreator.com/skalink/?s=306352', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA3OThf/Group.png" alt="Fellowship">
+      <span>Fellowship</span>
+    </button>
+    <button onclick="window.open('https://calendar.app.google/ByELE5hqVCBJBM1W8', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA3OTlf/appointment.png" alt="Appointment">
+      <span>Appointment</span>
+    </button>
+    <button onclick="window.open('https://skadigitalhub.github.io/bookshelf/', '_blank')">
+      <img class="icon" src="https://od.lk/s/ODlfMzI0MzA3OTdf/Shop.png" alt="Shop">
+      <span>Library</span>
+    </button>
+  </div>
+
+  <script>
+    // Existing toggleMode function
+    function toggleMode() {
+      const body = document.body;
+      const toggleButton = document.querySelector('.mode-toggle');
+
+      body.classList.toggle('dark-mode');
+
+      if (body.classList.contains('dark-mode')) {
+        toggleButton.textContent = '☀️';
+        toggleButton.classList.add('light');
+      } else {
+        toggleButton.textContent = '🌙';
+        toggleButton.classList.remove('light');
+      }
+    }
+
+    // Function to toggle the More popup menu
+    function toggleMorePopup() {
+      const popup = document.getElementById("morePopup");
+      popup.style.display = popup.style.display === "flex" ? "none" : "flex";
+    }
+
+    // Close the popup when clicking outside of it
+    document.addEventListener("click", (event) => {
+      const popup = document.getElementById("morePopup");
+      const moreButton = document.querySelector(".bottom-menu button:last-child");
+      if (event.target !== moreButton && !popup.contains(event.target)) {
+        popup.style.display = "none";
+      }
+    });
+
+    // Swiping logic
+    let slider = document.getElementById("iframeSlider");
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener("mousedown", (e) => {
+      isDown = true;
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener("mouseleave", () => {
+      isDown = false;
+    });
+
+    slider.addEventListener("mouseup", () => {
+      isDown = false;
+    });
+
+    slider.addEventListener("mousemove", (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 2; // Adjust for sensitivity
+      slider.scrollLeft = scrollLeft - walk;
+    });
+
+    slider.addEventListener("touchstart", (e) => {
+      isDown = true;
+      startX = e.touches[0].pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener("touchend", () => {
+      isDown = false;
+    });
+
+    slider.addEventListener("touchmove", (e) => {
+      if (!isDown) return;
+      const x = e.touches[0].pageX - slider.offsetLeft;
+      const walk = (x - startX) * 2;
+      slider.scrollLeft = scrollLeft - walk;
+    });
+  </script>
+</body>
+</html>
